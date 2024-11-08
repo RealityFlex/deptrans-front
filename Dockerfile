@@ -9,7 +9,3 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
 
 COPY . .
-
-RUN pnpm run dev
-
-EXPOSE 8080
