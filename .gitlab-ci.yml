@@ -1,0 +1,48 @@
+stages:
+    - build
+    - deploy
+
+build_application:
+    stage: build
+    tags:
+        - front-docker
+    artifacts:
+        paths:
+        - dist
+        - pnpm-lock.yaml
+        expire_in: 2 days
+
+    only:
+        - master
+    image: node:21 
+    script:
+        - npm install -g pnpm
+        - pnpm install
+        - pnpm build
+
+dev_stage:
+    stage: deploy
+    tags:
+        - front-docker
+    only:
+        - master
+    image: kroniak/ssh-client
+    before_script:
+        - mkdir -p ~/.ssh
+        - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        - echo -n "$SSH_KEY" | base64 -d > ~/.ssh/id_rsa
+        - chmod 700 ~/.ssh
+        - chmod 600 ~/.ssh/id_rsa
+
+    script:
+        - ls -la ~/.ssh/
+        - ssh -v root@$DEV_HOST
+        - cd dist
+        - ssh root@$DEV_HOST 'rm -r /union/1532-union-web-client; mkdir /union/1532-union-web-client;'
+        - scp -r index.html root@$DEV_HOST:/union/1532-union-web-client
+        - scp -r favicon.ico root@$DEV_HOST:/union/1532-union-web-client
+        - scp -r js root@$DEV_HOST:/union/1532-union-web-client
+        - if [ -d "img" ]; then scp -r img root@$DEV_HOST:/union/1532-union-web-client; fi
+        - if [ -d "css" ]; then scp -r css root@$DEV_HOST:/union/1532-union-web-client; fi
+        - if [ -d "fonts" ]; then scp -r fonts root@$DEV_HOST:/union/1532-union-web-client; fi
+

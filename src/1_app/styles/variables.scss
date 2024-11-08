@@ -1,0 +1,100 @@
+$minWidth: 320;
+
+$maxWidth: 1920;
+
+$maxWidthContainer: 1536;
+
+$containerPadding: 24;
+
+$containerWidth: $maxWidthContainer + $containerPadding;
+
+$pc: em($containerWidth);
+$tablet: em(1024);
+$mobile: em(430);
+$mobileSmall: em(375);
+$mobileXSmall: em(280);
+
+$fontBody: 16;
+$fontBodyLineHeight: 24; // -> 1.5
+
+$fontH1: 32;
+$fontH1LineHeight: 40; // -> 2.5
+
+$fontH2: 24;
+$fontH2LineHeight: 32; // -> 1.333
+
+$fontH3: 20;
+$fontH3LineHeight: 28; // -> 1.4
+
+$fontCaption: 14;
+$fontCaptionLineHeight: 21; // -> 1.5
+
+@mixin h1(
+    $font-weight: 500,
+    $color: hsl(var(--foreground)),
+    $start-font-size: $fontH1,
+    $min-font-size: -1,
+    $start-line-height: $fontH1LineHeight,
+    $min-line-height: -1,
+) {
+    font-weight: $font-weight;
+    color: $color;
+    @include adaptiveValue("font-size", $start-font-size, $min-font-size);
+    @include adaptiveValue("line-height", $start-line-height, $min-line-height);
+}
+
+@mixin h2(
+    $font-weight: 500,
+    $color: hsl(var(--foreground)),
+    $start-font-size: $fontH2,
+    $min-font-size: -1,
+    $start-line-height: $fontH2LineHeight,
+    $min-line-height: -1,
+) {
+    font-weight: $font-weight;
+    color: $color;
+    @include adaptiveValue("font-size", $start-font-size, $min-font-size);
+    @include adaptiveValue("line-height", $start-line-height, $min-line-height);
+}
+
+@mixin h3(
+    $font-weight: 500,
+    $color: hsl(var(--foreground)),
+    $start-font-size: $fontH3,
+    $min-font-size: -1,
+    $start-line-height: $fontH3LineHeight,
+    $min-line-height: -1,
+) {
+    font-weight: $font-weight;
+    color: $color;
+    @include adaptiveValue("font-size", $start-font-size, $min-font-size);
+    @include adaptiveValue("line-height", $start-line-height, $min-line-height);
+}
+
+@mixin body(
+    $font-weight: 400,
+    $color: hsl(var(--foreground)),
+    $start-font-size: $fontBody,
+    $min-font-size: -1,
+    $start-line-height: $fontBodyLineHeight,
+    $min-line-height: -1,
+) {
+    font-weight: $font-weight;
+    color: $color;
+    @include adaptiveValue("font-size", $font-size, $min-font-size);
+    @include adaptiveValue("line-height", $line-height, $min-line-height);
+}
+
+@mixin caption(
+    $font-weight: 400,
+    $color: hsl(var(--muted-foreground)),
+    $start-font-size: $fontCaption,
+    $min-font-size: -1,
+    $start-line-height: $fontCaptionLineHeight,
+    $min-line-height: -1,
+) {
+    font-weight: $font-weight;
+    color: $color;
+    @include adaptiveValue("font-size", $start-font-size, $min-font-size);
+    @include adaptiveValue("line-height", $start-line-height, $min-line-height);
+}
