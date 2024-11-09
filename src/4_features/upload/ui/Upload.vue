@@ -25,7 +25,7 @@
         </div>
         <Tabs default-value="street" v-model="currentTab">
           <TabsList class="w-full">
-            <TabsTrigger class="w-full" value="street">Улицы</TabsTrigger>
+            <TabsTrigger class="w-full" value="streets">Улицы</TabsTrigger>
             <TabsTrigger class="w-full" value="buildings">Дома</TabsTrigger>
             <TabsTrigger class="w-full" value="metro">Станции метро</TabsTrigger>
             <TabsTrigger class="w-full" value="stations">Остановки</TabsTrigger>
@@ -67,10 +67,10 @@ import { useVersionStore } from '@/5_entities/version/model';
   
   const { toast } = useToast();
   
-  const currentTab = ref('street');
+  const currentTab = ref('streets');
   
   const fileSegments = ref({
-    street: [],
+    streets: [],
     buildings: [],
     metro: [],
     stations: [],

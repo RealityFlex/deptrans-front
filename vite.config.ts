@@ -11,7 +11,7 @@ const env = loadEnv('', process.cwd(), '');
 const apiUrl = env?.VITE_APP_API_BASE_URL || '/api';
 const apiProtocol = env?.VITE_APP_API_PROTOCOL || 'http';
 const apiService = env?.VITE_APP_API_HOST || 'localhost';
-const apiPort = env?.VITE_APP_API_SERVICE_PORT || '8180';
+const apiPort = env?.VITE_APP_API_SERVICE_PORT || '80';
 
 import tailwind from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
