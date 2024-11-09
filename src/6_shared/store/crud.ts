@@ -136,41 +136,41 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       datasetName: string, 
       version: string, 
       callback?: () => void
-    ) => {
-        setLoading('create', true);
-    
-        const formData = new FormData();
+  ) => {
+      setLoading('create', true);
+  
+      const formData = new FormData();
         files.forEach(file => {
             formData.append('files', file);
         });
-    
-        try {
-            const response = await httpService.post(
-                `/upload-endpoint?dataset_name=${encodeURIComponent(datasetName)}&version=${encodeURIComponent(version)}`,
-                formData,
-                {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                }
-            );
-    
-            if (response.status === StatusCodes.OK) {
-                toast({
-                    variant: 'success',
-                    title: 'Файлы успешно загружены!'
-                });
-                callback?.();
-            }
-        } catch (error) {
-            console.error(error);
-            toast({
-                variant: 'destructive',
-                title: 'Ошибка загрузки',
-                description: 'Произошла ошибка при загрузке файлов. Попробуйте снова.'
-            });
-        } finally {
-            setLoading('create', false);
-        }
-    };
+  
+          try {
+
+              const params = {
+                  dataset_name: datasetName,
+                  version: version
+              }
+
+              const response = await httpService.sendFiles(formData,params);
+      
+              if (response.status === StatusCodes.OK) {
+                  toast({
+                      variant: 'success',
+                      title: 'Файлы успешно загружены!'
+                  });
+                  callback?.();
+              }
+          } catch (error) {
+              console.error(error);
+              toast({
+                  variant: 'destructive',
+                  title: 'Ошибка загрузки',
+                  description: 'Произошла ошибка при загрузке файлов. Попробуйте снова.'
+              });
+          } finally {
+              setLoading('create', false);
+          }
+      };
   
   
 

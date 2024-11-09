@@ -26,9 +26,9 @@
         <Tabs default-value="street" v-model="currentTab">
           <TabsList class="w-full">
             <TabsTrigger class="w-full" value="street">Улицы</TabsTrigger>
-            <TabsTrigger class="w-full" value="building">Дома</TabsTrigger>
+            <TabsTrigger class="w-full" value="buildings">Дома</TabsTrigger>
             <TabsTrigger class="w-full" value="metro">Станции метро</TabsTrigger>
-            <TabsTrigger class="w-full" value="stops">Остановки</TabsTrigger>
+            <TabsTrigger class="w-full" value="stations">Остановки</TabsTrigger>
           </TabsList>
           <TabsContent class="upload__uploaded-files" v-for="(files, tab) in fileSegments" :key="tab" :value="tab">
             <template v-if="fileSegments[tab].length">
@@ -70,9 +70,9 @@
   
   const fileSegments = ref({
     street: [],
-    building: [],
+    buildings: [],
     metro: [],
-    stops: [],
+    stations: [],
   });
 
   const uploadStore = useUploadStore();
@@ -125,7 +125,7 @@
     try {
       await versionSchema.validate(version.value);
       
-      const allFiles = Object.values(fileSegments.value).flat();    
+      const allFiles = Object.values(fileSegments.value).flat();  
       uploadStore.uploadFiles(allFiles, currentTab.value, version.value);
 
     } catch (error) {

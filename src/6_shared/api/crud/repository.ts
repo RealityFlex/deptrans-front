@@ -18,13 +18,19 @@ export class  CrudRepository<T extends BaseDto> {
     get(id: string | number) {
         return this.axiosInstance.get(`${this.endpoint}/${id}`);
     }
-    post(payload: T) {
-        return this.axiosInstance.post(this.endpoint, payload);
+    post(payload: T, endpoint?: string) {
+        return this.axiosInstance.post(endpoint || this.endpoint, payload);
     }
     put(id: string | number, payload?: T) {
         return this.axiosInstance.put(`${this.endpoint}/${id}`, payload);
     }
     delete(id: string | number) {
         return this.axiosInstance.delete(`${this.endpoint}/${id}`);
+    }
+    sendFiles(formData: FormData, params?: any) {
+        return this.axiosInstance.post(`${this.endpoint}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            params: params
+        });
     }
 }
