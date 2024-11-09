@@ -12,21 +12,14 @@
         </div>
         <Input placeholder="Поиск"></Input>
           <div class="versions">
-            <Version :isSelected="true"/>
-            <Version />
-            <Version />
-            <Version />
-            <Version />
-            <Version />
-            <Version />
-            <Version />
-            <Version />
+            <Version v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
           </div>
       </div>
     </div>
   </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { Input } from "@/6_shared/ui/input";
 import { Upload } from "@/4_features/upload";
 import { Version } from "@/5_entities/version";
@@ -34,7 +27,9 @@ import { useVersionStore } from "@/5_entities/version/model";
 
 const versionStore = useVersionStore();
 
-versionStore.fetchList();
+versionStore.fetchList('folders');
+
+const folders = computed<{ version: string; created_at: string }[]>(() => versionStore.items);
 
 </script>
 

@@ -23,14 +23,14 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       loading.value[key] = value;
     };
 
-    const fetchList = async (cursorValue: any = null) => {
+    const fetchList = async (getter?: string) => {
       setLoading('list', true);
       try {
-        const { data, status } = await httpService.list({ cursor: cursorValue });
+        const { data, status } = await httpService.list();
         if (status !== StatusCodes.OK) {
           return;
         }
-        items.value = data;
+        items.value = getter && data[getter] || data;
       } catch (e) {
         console.error('Error on fetching list:', e);
         toast({

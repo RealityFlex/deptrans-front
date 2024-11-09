@@ -4,10 +4,10 @@
             <div class="line" v-if="isSelected"></div>
             <div class="info">
                 <div class="name">
-                    09.11.2024_до_застройки
+                    {{ name }}
                 </div>
                 <div class="date">
-                    Версия от 09.11.2024
+                    Версия от {{ parsedDate }}
                 </div>
             </div>
         </div>
@@ -28,11 +28,25 @@
 import { Button } from '@/6_shared/ui/button'
 import IconTrash from '~icons/iconamoon/trash?width=48px&height=48px';
 import IconMapUp from '~icons/tabler/map-up?width=48px&height=48px';
+import { format, parse } from '@formkit/tempo'
 
 
-defineProps ({
-    isSelected: Boolean
+const props = defineProps({
+    name: {
+        type: String,
+        required: true
+    },
+    date: {
+        type: String,
+        required: true
+    },
+    isSelected: {
+        type: Boolean,
+        required: true
+    }
 })
+
+const parsedDate = format(parse(props.date), 'medium')
 </script>
 
 <style lang="scss" scoped>

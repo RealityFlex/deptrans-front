@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@formkit/tempo':
+    specifier: ^0.1.2
+    version: 0.1.2
   '@radix-icons/vue':
     specifier: ^1.0.0
     version: 1.0.0(vue@3.5.12)
@@ -558,6 +561,10 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: false
+
+  /@formkit/tempo@0.1.2:
+    resolution: {integrity: sha512-jNPPbjL8oj7hK3eHX++CwbR6X4GKQt+x00/q4yeXkwynXHGKL27dylYhpEgwrmediPP4y7s0XtN1if/M/JYujg==}
     dev: false
 
   /@humanwhocodes/config-array@0.13.0:
@@ -3923,6 +3930,7 @@ packages:
     dev: false
 
 time:
+  /@formkit/tempo@0.1.2: '2024-06-26T20:55:57.910Z'
   /@iconify/json@2.2.270: '2024-11-09T07:51:37.320Z'
   /@radix-icons/vue@1.0.0: '2023-09-27T03:31:14.386Z'
   /@rushstack/eslint-patch@1.10.4: '2024-07-27T00:11:24.526Z'
