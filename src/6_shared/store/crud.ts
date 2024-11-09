@@ -131,6 +131,49 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       item.value = {} as T;
     };
 
+    const uploadFiles = async (
+      files: File[], 
+      datasetName: string, 
+      version: string, 
+      callback?: () => void
+    ) => {
+        setLoading('create', true);
+    
+        const formData = new FormData();
+        files.forEach(file => {
+            formData.append('files', file);
+        });
+    
+        try {
+            const response = await httpService.post(
+                `/upload-endpoint?dataset_name=${encodeURIComponent(datasetName)}&version=${encodeURIComponent(version)}`,
+                formData,
+                {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                }
+            );
+    
+            if (response.status === StatusCodes.OK) {
+                toast({
+                    variant: 'success',
+                    title: 'Файлы успешно загружены!'
+                });
+                callback?.();
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                variant: 'destructive',
+                title: 'Ошибка загрузки',
+                description: 'Произошла ошибка при загрузке файлов. Попробуйте снова.'
+            });
+        } finally {
+            setLoading('create', false);
+        }
+    };
+  
+  
+
     return {
       items,
       item,
@@ -142,6 +185,7 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       deleteItem,
       resetList,
       resetItem,
+      uploadFiles
     };
   });
 }
