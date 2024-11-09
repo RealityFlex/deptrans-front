@@ -7,9 +7,15 @@
 .defaultLayout {
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: 100%;
     margin: 40px 80px;
+    margin-block: 24px;
+    @include adaptiveValue('margin-inline', 64, 32);
+    gap: 24px;
 }
 .defaultLayoutMain {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
+  gap: 12px;
 }
