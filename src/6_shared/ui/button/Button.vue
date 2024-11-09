@@ -11,6 +11,7 @@ interface Props extends PrimitiveProps {
   size?: ButtonVariants['size']
   class?: HTMLAttributes['class']
   loading? : boolean 
+  disabled? : boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
     :as="as"
     :as-child="asChild"
     :class="cn(buttonVariants({ variant, size }), props.class)"
-    :disabled="loading"
+    :disabled="loading || disabled"
   >
     <IconLoading v-if="loading" class="h-4 w-4 mr-2 animate-spin" />
     <slot/>

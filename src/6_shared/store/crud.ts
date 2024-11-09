@@ -137,23 +137,21 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       version: string, 
       callback?: () => void
   ) => {
-      setLoading('create', true);
-  
-      const formData = new FormData();
-        files.forEach(file => {
-            formData.append('files', file);
-        });
-  
+      setLoading('create', true);  
           try {
 
               const params = {
                   dataset_name: datasetName,
                   version: version
               }
+              const formData = new FormData();
+              files.forEach((file) => {
+                  formData.append('files', file);
+              });
 
-              const response = await httpService.sendFiles(formData,params);
+              const response = await httpService.sendFiles(formData, params);
       
-              if (response.status === StatusCodes.OK) {
+              if (response?.status === StatusCodes.OK) {
                   toast({
                       variant: 'success',
                       title: 'Файлы успешно загружены!'
