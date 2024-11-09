@@ -55,7 +55,7 @@ const onSelect = (name: string) => {
   flex-direction: column;
   width: 100%;
   max-height: 100%;
-  gap: 24px;
+  gap: 16px;
   @include adaptiveValue('padding', 32, 16);
   border-radius: 24px;
   background-color: white;
