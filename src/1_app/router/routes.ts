@@ -17,6 +17,15 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    name: AppPages.upload,
+    path: '/upload',
+    component: () => import('@/2_pages/upload'),
+    meta: {
+      layout: AppLayoutsEnum.default,
+      authRequired: true,
+    },
+  },
+  {
     name: AppPages.login,
     path: '/login',
     component: () => import('@/2_pages/login'),

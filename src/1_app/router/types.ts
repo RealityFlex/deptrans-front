@@ -12,4 +12,5 @@ declare module 'vue-router' {
 export const enum AppPages {
   home = 'HomePage',
   login = 'LoginPage',
+  upload = 'UploadPage',
 }

@@ -9,14 +9,11 @@
 html, body {
     height: 100%;
     scroll-behavior: smooth;
+    background-color: hsl(var(--background));
 }
 
 [class*="Container"] {
-    max-width: 1584px;
+    max-width: 1712px;
     margin: 0 auto;
     @include adaptiveValue('padding', 24, 16);
-    @media screen and (max-width: 1536px) {
-        max-width: 1328px;
-    }
-    @include adaptiveValue('padding-top', 64, 24);
-  }
+}
