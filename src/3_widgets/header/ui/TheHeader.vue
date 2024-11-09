@@ -1,6 +1,6 @@
 @@ -0,0 +1,101 @@
 <template>
-    <div class="header">
+    <div class="root">
         <div class="headerContainer">
             <div class="headerLeft">
                 <router-link to="/">
@@ -31,7 +31,7 @@ import { AppPages } from '@/1_app/router';
 </script>
 
 <style lang="scss" scoped>
-.header {
+.root {
     border-radius: 24px;
     background-color: white;
 }

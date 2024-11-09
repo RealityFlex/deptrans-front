@@ -1,0 +1,133 @@
+<template>
+    <div class="flex flex-col gap-6 h-full">
+      <label for="file" class="upload-file__upload upload">
+        <Input @change="onFileChange($event)" accept=".shp, .shx, .dbf, .prj, .qmd, .cpg, .png" id="file" type="file" multiple />
+        <div class="upload__area">
+          <IconFileUpload class="upload__icon"/>
+          <div class="upload__body">
+            <div class="upload__text">
+              <span>Перетащите сюда файл(ы) или</span>
+              <span>&nbsp;</span>
+              <span class="cursor-pointer text-primary underline">загрузите</span>
+            </div>
+            <div class="upload__additional">Поддерживаемые форматы: .shp, .shx, .dbf, .prj, .qmd, .cpg</div>
+          </div>
+        </div>
+      </label>
+      <div class="upload__segment">
+        <div class="upload__segment-header">
+          <div>Файловый сегмент</div>
+          <span class="upload__segment-caption">Максимальное кол-во файлов для сегмента: 6</span>
+        </div>
+        <Tabs default-value="street" v-model="currentTab">
+          <TabsList class="w-full">
+            <TabsTrigger class="w-full" value="street">Улицы</TabsTrigger>
+            <TabsTrigger class="w-full" value="building">Дома</TabsTrigger>
+            <TabsTrigger class="w-full" value="metro">Станции метро</TabsTrigger>
+            <TabsTrigger class="w-full" value="stops">Остановки</TabsTrigger>
+          </TabsList>
+          <TabsContent class="upload__uploaded-files" v-for="(files, tab) in fileSegments" :key="tab" :value="tab">
+            <template v-if="fileSegments[tab].length">
+                <UploadedFile 
+                    v-for="(file, index) in files" 
+                    :key="index" 
+                    :name="file.name" 
+                    :size="calculateFileSize(file.size)" 
+                    @remove="removeFile(tab, index)"
+                />
+            </template>
+            <div v-else class="upload__uploaded-files-empty">Отсутствуют загруженные файлы</div>
+          </TabsContent>
+        </Tabs>
+        <Button :disabled="!fileSegments[currentTab].length" @click="uploadFile" :loading="isLoading">Обновить данные для сегмента</Button>
+      </div>
+    </div>
+  </template>
+  
+  <script setup lang="ts">
+  import { ref, computed, nextTick } from 'vue';
+  
+  import { useToast } from '@/6_shared/ui/toast';
+  import { Button } from '@/6_shared/ui/button';
+  import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/6_shared/ui/tabs';
+  import { Input } from '@/6_shared/ui/input';
+  import { UploadedFile } from '@/5_entities/uploaded-file';
+  import IconFileUpload from '~icons/lucide/file-up?width=48px&height=48px';
+  
+  const { toast } = useToast();
+  
+  const isLoading = ref(false);
+  const currentTab = ref('street');
+  
+  const fileSegments = ref({
+    street: [],
+    building: [],
+    metro: [],
+    stops: [],
+  });
+  
+  const onFileChange = (e: any) => {
+    const maxFilesPerSegment = 6;
+    const files = Array.from(e.target.files);
+    const segment = currentTab.value;
+
+    files.forEach((file) => {
+        const existingFileIndex = fileSegments.value[segment].findIndex(
+            (existingFile) => existingFile.name === file.name
+        );
+
+        if (existingFileIndex !== -1) {
+            fileSegments.value[segment][existingFileIndex] = file;
+            toast({
+                variant: 'info',
+                title: `Файл перезаписан`,
+                description: `Файл "${file.name}" для сегмента "${segment}" был перезаписан.`,
+            });
+        } else {
+            if (fileSegments.value[segment].length < maxFilesPerSegment) {
+                fileSegments.value[segment].push(file);
+            }
+        }
+    });
+
+    if (fileSegments.value[segment].length > maxFilesPerSegment) {
+        fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
+
+        toast({
+            variant: 'destructive',
+            title: `Превышено максимальное количество файлов`,
+            description: `Для сегмента "${segment}" можно загрузить не более ${maxFilesPerSegment} файлов.`,
+        });
+    }
+
+    e.target.value = '';
+};
+
+  
+  const removeFile = (segment, index) => {
+    fileSegments.value[segment].splice(index, 1);
+  };
+  
+  const uploadFile = () => {
+    const allFiles = Object.values(fileSegments.value).flat();
+    console.log("Название версии:", versionName.value);
+    console.log("Все файлы:", allFiles);
+  };
+  
+  const versionName = ref("");
+  
+  const calculateFileSize = (bytes) => {
+    const sizes = ['Байт', 'КБ', 'МБ', 'ГБ', 'ТБ'];
+    if (bytes === 0) {
+      return '0 Байт';
+    }
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
+  };
+
+  </script>
+  
+  <style scoped lang="scss">
+  @import './styles';
+  </style>
+  
