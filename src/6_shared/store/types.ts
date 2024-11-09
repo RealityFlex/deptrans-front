@@ -8,8 +8,6 @@ export interface LoadingState {
   create: boolean;
   update: boolean;
   delete: boolean;
-  listMe: boolean;
-  itemMe: boolean;
 }
 
 export interface SortProperty {
