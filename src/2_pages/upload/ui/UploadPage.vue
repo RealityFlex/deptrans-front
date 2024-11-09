@@ -27,11 +27,14 @@
   </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { Input } from "@/6_shared/ui/input";
 import { Upload } from "@/4_features/upload";
-import { ScrollArea } from '@/6_shared/ui/scroll-area'
 import { Version } from "@/5_entities/version";
+import { useVersionStore } from "@/5_entities/version/model";
+
+const versionStore = useVersionStore();
+
+versionStore.fetchList();
 
 </script>
 
