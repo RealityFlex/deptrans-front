@@ -61,6 +61,7 @@
   import { useUploadStore } from '@/5_entities/upload/model';
 
   import * as yup from 'yup';
+import { useVersionStore } from '@/5_entities/version/model';
   
   const version = ref('')
   
@@ -116,6 +117,8 @@
     e.target.value = '';
 };
 
+  const versionStore = useVersionStore();
+
   
   const removeFile = (segment, index) => {
     fileSegments.value[segment].splice(index, 1);
@@ -126,7 +129,7 @@
       await versionSchema.validate(version.value);
       
       const allFiles = Object.values(fileSegments.value).flat();  
-      uploadStore.uploadFiles(allFiles, currentTab.value, version.value);
+      uploadStore.uploadFiles(allFiles, currentTab.value, version.value, () => versionStore.fetchList('folders'));
 
     } catch (error) {
       if (error instanceof yup.ValidationError) {

@@ -16,7 +16,7 @@
                 Перейти к карте
                 <IconMapUp class="icon text-primary ml-2"/>
             </Button>
-            <Button v-else>Выбрать</Button>
+            <Button @click="select" v-else>Выбрать</Button>
             <Button size="icon" variant="ghost">
                 <IconTrash class="icon text-primary"/>
             </Button>
@@ -45,6 +45,12 @@ const props = defineProps({
         required: true
     }
 })
+
+const emits = defineEmits(['select'])
+
+const select = () => {
+    emits('select', props.name)
+}
 
 const parsedDate = format(parse(props.date), 'medium')
 </script>

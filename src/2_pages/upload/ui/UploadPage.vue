@@ -12,7 +12,7 @@
         </div>
         <Input placeholder="Поиск"></Input>
           <div class="versions">
-            <Version v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
+            <Version @select="onSelect($event)" v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
           </div>
       </div>
     </div>
@@ -24,12 +24,21 @@ import { Input } from "@/6_shared/ui/input";
 import { Upload } from "@/4_features/upload";
 import { Version } from "@/5_entities/version";
 import { useVersionStore } from "@/5_entities/version/model";
+import { useFilesStore } from "@/5_entities/files/model";
 
 const versionStore = useVersionStore();
+const filesStore = useFilesStore();
 
 versionStore.fetchList('folders');
 
 const folders = computed<{ version: string; created_at: string }[]>(() => versionStore.items);
+
+const onSelect = (name: string) => {
+  const params = {
+    version: name
+  }
+  filesStore.fetchList('', params);
+}
 
 </script>
 

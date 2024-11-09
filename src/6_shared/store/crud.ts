@@ -23,10 +23,10 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       loading.value[key] = value;
     };
 
-    const fetchList = async (getter?: string) => {
+    const fetchList = async (getter?: string, params?: any) => {
       setLoading('list', true);
       try {
-        const { data, status } = await httpService.list();
+        const { data, status } = await httpService.list(params);
         if (status !== StatusCodes.OK) {
           return;
         }
