@@ -4,10 +4,6 @@
         <div class="sectionHeader">
           Загрузка файлов для версии
         </div>
-          <div class="group">
-            <Label for="version">Наименование версии</Label>
-            <Input id="version" placeholder="Введите наименование версии"></Input>
-          </div>
           <Upload/>
       </div>
       <div class="section">
@@ -31,11 +27,12 @@
   </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { Input } from "@/6_shared/ui/input";
-import { Label } from "@/6_shared/ui/label";
 import { Upload } from "@/4_features/upload";
 import { ScrollArea } from '@/6_shared/ui/scroll-area'
 import { Version } from "@/5_entities/version";
+
 </script>
 
 <style scoped lang="scss">

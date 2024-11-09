@@ -4,5 +4,5 @@ import { UploadRepository } from './repository';
 const uploadUrl = 'upload-files';
 
 export const http = {
-  uploadFiles: new UploadRepository(uploadUrl, axiosInstance),
+  upload: new UploadRepository(uploadUrl, axiosInstance),
 };
