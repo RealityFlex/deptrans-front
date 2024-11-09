@@ -1,7 +1,7 @@
 <template>
      <div class="group">
       <Label for="version">Наименование версии</Label>
-      <Input v-model:modelValue="version" id="version" placeholder="Введите наименование версии"></Input>
+      <Input v-model:modelValue="versionControlStore.currentVersion" id="version" placeholder="Введите наименование версии"></Input>
     </div>
     <div class="flex flex-col gap-6 h-full">
       <label for="file" class="upload-file__upload upload">
@@ -61,10 +61,10 @@
   import { useUploadStore } from '@/5_entities/upload/model';
 
   import * as yup from 'yup';
-import { useVersionStore } from '@/5_entities/version/model';
-  
-  const version = ref('')
-  
+import { useVersionControlStore, useVersionStore } from '@/5_entities/version/model';
+
+  const versionControlStore = useVersionControlStore();
+
   const { toast } = useToast();
   
   const currentTab = ref('streets');
@@ -79,6 +79,15 @@ import { useVersionStore } from '@/5_entities/version/model';
   const uploadStore = useUploadStore();
 
   const versionSchema = yup.string().required();
+
+  const props = defineProps({
+    selectedVersion: {
+      type: String,
+      required: true
+    }
+  })
+
+  const version = ref(props.selectedVersion)
   
   const onFileChange = (e: any) => {
     const maxFilesPerSegment = 6;

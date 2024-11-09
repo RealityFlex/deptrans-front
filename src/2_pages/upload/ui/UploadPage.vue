@@ -12,7 +12,7 @@
         </div>
         <Input placeholder="Поиск"></Input>
           <div class="versions">
-            <Version @select="onSelect($event)" v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
+            <Version :isSelected="versionControlStore.currentVersion === folder.version" @select="onSelect($event)" v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
           </div>
       </div>
     </div>
@@ -23,22 +23,32 @@ import { computed } from "vue";
 import { Input } from "@/6_shared/ui/input";
 import { Upload } from "@/4_features/upload";
 import { Version } from "@/5_entities/version";
-import { useVersionStore } from "@/5_entities/version/model";
+import { useVersionControlStore, useVersionStore } from "@/5_entities/version/model";
 import { useFilesStore } from "@/5_entities/files/model";
 
 const versionStore = useVersionStore();
 const filesStore = useFilesStore();
+const versionControlStore = useVersionControlStore();
 
-versionStore.fetchList('folders');
+
+const fetch = async () => {
+  await versionStore.fetchList('folders');
+  versionControlStore.changeVersion(folders.value[0]?.version);
+}
 
 const folders = computed<{ version: string; created_at: string }[]>(() => versionStore.items);
 
-const onSelect = (name: string) => {
+
+const onSelect = async (name: string) => {
   const params = {
     version: name
   }
-  filesStore.fetchList('', params);
+
+  await filesStore.fetchList('', params);
+  versionControlStore.changeVersion(name);
 }
+
+fetch();
 
 </script>
 

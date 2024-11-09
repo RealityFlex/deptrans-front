@@ -43,7 +43,7 @@ const props = defineProps({
     isSelected: {
         type: Boolean,
         required: true
-    }
+    },
 })
 
 const emits = defineEmits(['select'])
@@ -52,7 +52,7 @@ const select = () => {
     emits('select', props.name)
 }
 
-const parsedDate = format(parse(props.date), 'medium')
+const parsedDate = props.date && format(parse(props.date), 'medium')
 </script>
 
 <style lang="scss" scoped>
