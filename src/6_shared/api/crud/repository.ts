@@ -33,4 +33,13 @@ export class  CrudRepository<T extends BaseDto> {
             params: params
         });
     }
+    getDocument(params?: any,) {
+        return this.axiosInstance.get(
+          `${this.endpoint}`,
+          {
+            responseType: 'blob',
+            params: params
+          },
+        );
+      }
 }

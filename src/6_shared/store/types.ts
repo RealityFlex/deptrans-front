@@ -29,4 +29,5 @@ export interface CrudStore<T extends BaseDto> {
   resetList(): void;
   resetItem(): void;
   uploadFiles(files: File[], datasetName: string, version: string, callback?: () => void): Promise<void>;
+  getDocument(payload: any): Promise<void>;
 }

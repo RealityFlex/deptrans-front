@@ -294,12 +294,12 @@ const updateMapData = async () => {
 const getRaport = async () => {
   const params = { 
     version: version.value, 
-    lat: coordinates.value.lat,
-    long: coordinates.value.lng, 
+    lat: coordinates.value.lng,
+    long: coordinates.value.lat, 
   };
   
   try {
-    await raportStore.fetchList('', params);
+    await raportStore.getDocument(params);
   }
   catch (e) {
     toast({

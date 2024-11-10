@@ -4,6 +4,7 @@ import { useToast } from '@/6_shared/ui/toast/use-toast';
 import { StatusCodes } from 'http-status-codes';
 import type { BaseDto } from '../api/types';
 import type { LoadingKeys, LoadingState } from './types';
+import { downloadBlob } from '../lib/downloadBlob';
 
 export function createCrudStore<T extends BaseDto>(storeId: string, httpService: any, withCursor: boolean = true) {
   return defineStore(storeId, () => {
@@ -173,6 +174,22 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
           }
       };
   
+      const getDocument = async (params: any) => {
+        setLoading('item', true);
+        try {
+          await httpService
+            .getDocument(params)
+            .then((response: any) => {
+              let name = `${'Отчет'}`;
+              name = name + '.pdf';
+              downloadBlob(response.data, name);
+            });
+        } catch (e) {
+          console.error('Error on downloading document:', e);
+        } finally {
+          setLoading('item', false);
+        }
+      };
   
 
     return {
@@ -186,7 +203,8 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       deleteItem,
       resetList,
       resetItem,
-      uploadFiles
+      uploadFiles,
+      getDocument,
     };
   });
 }
