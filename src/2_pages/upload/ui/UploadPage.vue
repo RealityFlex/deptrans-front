@@ -12,7 +12,14 @@
         </div>
         <Input placeholder="Поиск"></Input>
           <div class="versions">
-            <Version :isSelected="versionControlStore.currentVersion === folder.version" @select="onSelect($event)" v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
+            <template v-if="!versionStore.loading.list">
+              <Version :isSelected="versionControlStore.currentVersion === folder.version" @select="onSelect($event)" v-for="(folder, index) in folders" :key="index" :name="folder.version" :date="folder.created_at"/>
+            </template>
+            <template v-else>
+              <Skeleton class="h-[68px] rounded-[24px]" />
+              <Skeleton class="h-[68px] rounded-[24px]" />
+              <Skeleton class="h-[68px] rounded-[24px]" />
+            </template>
           </div>
       </div>
     </div>
@@ -23,6 +30,7 @@ import { computed } from "vue";
 import { Input } from "@/6_shared/ui/input";
 import { Upload } from "@/4_features/upload";
 import { Version } from "@/5_entities/version";
+import { Skeleton } from "@/6_shared/ui/skeleton";
 import { useVersionControlStore, useVersionStore } from "@/5_entities/version/model";
 import { useFilesStore } from "@/5_entities/files/model";
 
