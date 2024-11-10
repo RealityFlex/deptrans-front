@@ -11,12 +11,12 @@
               </Button>
             </div>
           </div>
-          <RatingChart/>
+          <RatingChart :score="summary?.sytem_score || 0"/>
           <div class="grid grid-cols-2 gap-4">
-            <CountBlock count="12" desc="Кол-во пешеходных потоков"/>
-            <CountBlock count="1" desc="Кол-во загруженных зон"/>
-            <CountBlock count="24" desc="Кол-во значимых объектов"/>
-            <CountBlock count="17" desc="Кол-во пешеходных переходов"/>
+            <CountBlock :count="summary?.num_bus_stops" desc="Кол-во автобусных остановок"/>
+            <CountBlock :count="Math.round(summary?.total_people) || '?'" desc="Численность населения"/>
+            <CountBlock :count="summary?.overloaded_edges_count" desc="Кол-во загруженных пешеходных зон"/>
+            <CountBlock :count="summary?.longest_overloaded_edge_length" desc="Длина наиболее загруженного пути"/>
           </div>
         </div>
     </div>
@@ -62,10 +62,11 @@ onMounted(async () => {
     container: mapRef.value,
     style: "mapbox://styles/mapbox/light-v11",
     center: [37.495, 55.555],
-    zoom: 14,
+    zoom: 14.5,
   });
 
   map.value = mapInstance;
+
 
   map.value.on('load', () => {
     addMapData();
@@ -83,6 +84,7 @@ onMounted(async () => {
 const bus_stops = computed(() => routesStore.items.bus_stops);
 const houses = computed(() => routesStore.items.houses);
 const routes = computed(() => routesStore.items.routes);
+const summary = computed(() => routesStore.items.summary);
 
 function convertPointsToGeoJSON(points) {
     return {
@@ -91,7 +93,7 @@ function convertPointsToGeoJSON(points) {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-                coordinates: [point.y, point.x]
+                coordinates: [point.x, point.y]
             }
         }))
     };
@@ -128,36 +130,56 @@ const addMapData = () => {
   removeMapData();
   if (!bus_stops.value?.length || !houses.value?.length || !Object.keys(routes.value)?.length) return;
 
+  const busStopIcon = new Image()
+  busStopIcon.src = '/images/map/bus.svg'
+  busStopIcon.onload = () => {
+    if (!map.value.hasImage('bus_station')) {
+       map.value.addImage('bus_station', busStopIcon);
+    }
+  }
+
+
   map.value.addSource('bus_stops', {
     type: 'geojson',
     data: convertPointsToGeoJSON(bus_stops.value)
   });
+
   map.value.addLayer({
     id: 'bus_stops_layer',
-    type: 'circle',
+    type: 'symbol',
     source: 'bus_stops',
-    paint: {
-      'circle-radius': 1,
-      'circle-color': '#E4000D'
+    layout: {
+      'icon-image': 'bus_station',
+      'icon-size': 0.3,
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
     }
   });
 
-  // Добавление точек домов
+  const housesIcon = new Image()
+  housesIcon.src = '/images/map/building.svg'
+  housesIcon.onload = () => {
+    if (!map.value.hasImage('house')) {
+      map.value.addImage('house', housesIcon);
+    }
+  }
+
   map.value.addSource('houses', {
     type: 'geojson',
     data: convertPointsToGeoJSON(houses.value)
   });
   map.value.addLayer({
-    id: 'houses_layer',
-    type: 'circle',
-    source: 'houses',
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#E4000D'
-    }
+      id: 'houses_layer',
+      type: 'symbol',
+      source: 'houses',
+      layout: {
+        'icon-image': 'house',
+        'icon-size': 0.5,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+      }
   });
 
-  // Добавление маршрутов
   map.value.addSource('routes', {
     type: 'geojson',
     data: convertRoutesToGeoJSON(routes.value)
@@ -167,7 +189,7 @@ const addMapData = () => {
     type: 'line',
     source: 'routes',
     paint: {
-      'line-width': 4,
+      'line-width': 2,
       'line-color': '#E4000D'
     }
   });
@@ -201,8 +223,9 @@ watch([bus_stops, houses, routes], ([newBusStops, newHouses, newRoutes]) => {
 .map {
   border-radius: 24px;
   height: 100%;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 150px);
   width: 75%;
+  overflow: hidden;
 }
 .sectionHeader {
   @include h2();

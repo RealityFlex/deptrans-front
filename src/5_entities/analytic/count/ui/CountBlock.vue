@@ -11,7 +11,10 @@
 
 <script setup lang="ts">
 defineProps({
-    count: String,
+    count: {
+        type: String,
+        default: '?'
+    },
     desc: String
 })
 </script>
@@ -30,6 +33,8 @@ defineProps({
     color: hsl(var(--primary));
 }
 .desc {
-    @include caption();
+    font-size: 10px;
+    color: black;
+    font-weight: 600;
 }
 </style>
