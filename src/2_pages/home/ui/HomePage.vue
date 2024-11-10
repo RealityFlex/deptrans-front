@@ -34,7 +34,7 @@
           <div class="sectionHeader">
             <div class="flex justify-between items-center">
               Аналитика
-              <Button :disabled="!version" :loading="raportStore.loading.list" @click="getRaport()">
+              <Button :disabled="!version" :loading="raportStore.loading.item" @click="getRaport()">
                 <IconFileDownload class="icon mr-2"/>
                 Отчет
               </Button>

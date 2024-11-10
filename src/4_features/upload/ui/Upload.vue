@@ -87,44 +87,45 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
 
   const versionSchema = yup.string().required();
   
+
   const onFileChange = (e: any) => {
-    const maxFilesPerSegment = 6;
-    const files = Array.from(e.target.files);
-    const segment = currentTab.value;
+  const maxFilesPerSegment = 6;
+  const files = Array.from(e.target.files); // Получаем файлы как массив
+  const segment = currentTab.value;
 
-    files.forEach((file) => {
-      const existingFileIndex = fileSegments.value[segment].findIndex(
-        (existingFile) => existingFile.name === file.name
-      );
+  files.forEach((file) => {
+    // Проверяем, если файл уже есть
+    const existingFileIndex = fileSegments.value[segment].findIndex(
+      (existingFile) => existingFile.name === file.name
+    );
 
-      if (existingFileIndex !== -1) {
-        fileSegments.value[segment][existingFileIndex] = { name: file.name, isFetched: false, size: file.size };
-        toast({
-          variant: 'info',
-          title: `Файл перезаписан`,
-          description: `Файл "${file.name}" для сегмента "${segment}" был перезаписан.`,
-        });
-      } else {
-        if (fileSegments.value[segment].length < maxFilesPerSegment) {
-          fileSegments.value[segment].push({ name: file.name, isFetched: false, size: file.size });
-        }
-      }
-    });
-
-    if (fileSegments.value[segment].length > maxFilesPerSegment) {
-        fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
-        fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
-
-      fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
-
+    if (existingFileIndex !== -1) {
+      // Если файл уже есть, перезаписываем
+      fileSegments.value[segment][existingFileIndex] = file;
       toast({
-        variant: 'destructive',
-        title: `Превышено максимальное количество файлов`,
-        description: `Для сегмента "${segment}" можно загрузить не более ${maxFilesPerSegment} файлов.`,
+        variant: 'info',
+        title: `Файл перезаписан`,
+        description: `Файл "${file.name}" для сегмента "${segment}" был перезаписан.`,
       });
+    } else {
+      // Если не существует, добавляем файл
+      if (fileSegments.value[segment].length < maxFilesPerSegment) {
+        fileSegments.value[segment].push(file);
+      }
     }
+  });
 
-    e.target.value = '';
+  if (fileSegments.value[segment].length > maxFilesPerSegment) {
+    // Если превышено количество файлов, ограничиваем
+    fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
+    toast({
+      variant: 'destructive',
+      title: `Превышено максимальное количество файлов`,
+      description: `Для сегмента "${segment}" можно загрузить не более ${maxFilesPerSegment} файлов.`,
+    });
+  }
+
+  e.target.value = ''; // Сбрасываем выбор файлов
 };
   const removeFile = (segment, index) => {
     fileSegments.value[segment].splice(index, 1);
@@ -133,8 +134,8 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
     try {
       await versionSchema.validate(versionControlStore.currentVersion);
       
-      const allFiles = Object.values(fileSegments.value).flat();  
-      uploadStore.uploadFiles(allFiles, currentTab.value, version.value, () => versionStore.fetchList('folders'));
+      const segmentFiles = fileSegments.value[currentTab.value];
+      uploadStore.uploadFiles(segmentFiles, currentTab.value, versionControlStore.currentVersion, () => versionStore.fetchList('folders'));
 
     } catch (error) {
       if (error instanceof yup.ValidationError) {

@@ -15,7 +15,7 @@ html, body {
 }
 
 [class*="Container"] {
-    max-width: 1712px;
+    max-width: 1812px;
     margin: 0 auto;
     @include adaptiveValue('padding', 24, 16);
 }
