@@ -4,12 +4,17 @@
           <Button class="absolute top-4 right-4" @click="updateMapData()">
             <IconRefresh :class="[routesStore.loading.list ? 'animate-spin' : '', 'icon']"/>
           </Button>
+          <div class="absolute flex gap-4 top-4 left-4 bg-white px-4 py-2 rounded-lg">
+            <div class="text-xs flex gap-2 items-center">
+              <IconlineCompass class="icon text-primary"/> {{ coordinates.lng }}, {{ coordinates.lat }}
+            </div>
+          </div>
         </div>
         <div class="section">
           <div class="sectionHeader">
             <div class="flex justify-between items-center">
               Аналитика
-              <Button>
+              <Button :disabled="!version" :loading="raportStore.loading.list" @click="getRaport()">
                 <IconFileDownload class="icon mr-2"/>
                 Отчет
               </Button>
@@ -37,27 +42,30 @@ import { CountBlock } from "@/5_entities/analytic/count";
 import { useRoutesStore } from "@/5_entities/routes/model";
 import { useVersionControlStore, useVersionStore } from "@/5_entities/version/model";
 import { router } from "@/1_app/router";
+import IconlineCompass from '~icons/icon-park-outline/compass?width=48px&height=48px';
+import { useRaportStore } from "@/5_entities/raport/model";
+import { useToast } from "@/6_shared/ui/toast";
+
+mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_PUBLIC_ACCESS_TOKEN;
 
 const routesStore = useRoutesStore();
 const versionControlStore = useVersionControlStore();
 const versionStore = useVersionStore();
+const raportStore = useRaportStore();
+const { toast } = useToast();
 
 const map = ref();
 const mapRef = ref();
+const coordinates = ref({
+  lng: 37.495,
+  lat: 55.555
+});
 
 const version = computed(() => versionControlStore.currentVersion);
-
-mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_PUBLIC_ACCESS_TOKEN;
-
-const updateMapData = async () => {
-  const params = { version: version.value };
-  
-  try {
-    await routesStore.fetchList('', params, true);
-  } catch (e) {
-    await initVersion();
-  }
-}
+const bus_stops = computed(() => routesStore.items.bus_stops);
+const houses = computed(() => routesStore.items.houses);
+const routes = computed(() => routesStore.items.routes);
+const summary = computed(() => routesStore.items.summary);
 
 const initVersion = async () => {
   await versionStore.fetchList('folders');
@@ -71,36 +79,6 @@ const initVersion = async () => {
     router.push({ name: 'UploadPage' });
   }
 }
-
-onMounted(async () => {
-  const mapInstance = new mapboxgl.Map({
-    container: mapRef.value,
-    style: "mapbox://styles/mapbox/light-v11",
-    center: [37.495, 55.555],
-    zoom: 14.5,
-  });
-
-  map.value = mapInstance;
-
-
-  map.value.on('load', () => {
-    addMapData();
-  });
-
-  const params = { version: version.value};
-  
-  try {
-    await routesStore.fetchList('', params, true);
-  } catch (e) {
-    await initVersion();
-  }
-})
-
-const bus_stops = computed(() => routesStore.items.bus_stops);
-const houses = computed(() => routesStore.items.houses);
-const routes = computed(() => routesStore.items.routes);
-const summary = computed(() => routesStore.items.summary);
-
 function convertPointsToGeoJSON(points) {
     return {
         type: 'FeatureCollection',
@@ -113,7 +91,6 @@ function convertPointsToGeoJSON(points) {
         }))
     };
 }
-
 function convertRoutesToGeoJSON(routes) {
     return {
         type: 'FeatureCollection',
@@ -128,7 +105,6 @@ function convertRoutesToGeoJSON(routes) {
             }))
     };
 }
-
 const removeMapData = () => {
   if (map.value.getLayer('bus_stops_layer')) map.value.removeLayer('bus_stops_layer');
   if (map.value.getSource('bus_stops')) map.value.removeSource('bus_stops');
@@ -139,8 +115,6 @@ const removeMapData = () => {
   if (map.value.getLayer('routes_layer')) map.value.removeLayer('routes_layer');
   if (map.value.getSource('routes')) map.value.removeSource('routes');
 };
-
-
 const addMapData = () => {
   removeMapData();
   if (!bus_stops.value?.length || !houses.value?.length || !Object.keys(routes.value)?.length) return;
@@ -208,8 +182,78 @@ const addMapData = () => {
         'icon-ignore-placement': true,
       }
   });
-};
 
+
+  map.value.on('click', (event: any) => {
+    const lngLat = event.lngLat;
+    coordinates.value = {
+      lng: lngLat.lng.toFixed(5),
+      lat: lngLat.lat.toFixed(5),
+    };
+
+    updateMapData();
+
+    map.value.zoomTo(14.5, {
+      center: lngLat,
+      duration: 500,
+    });
+  });
+};
+const updateMapData = async () => {
+  const params = { 
+    version: version.value, 
+    lat: coordinates.value.lat,
+    long: coordinates.value.lng, 
+  };
+  
+  try {
+    await routesStore.fetchList('', params, true);
+  } catch (e) {
+    await initVersion();
+  }
+}
+const getRaport = async () => {
+  const params = { 
+    version: version.value, 
+    lat: coordinates.value.lat,
+    long: coordinates.value.lng, 
+  };
+  
+  try {
+    await raportStore.fetchList('', params);
+  }
+  catch (e) {
+    toast({
+      variant: 'destructive',
+      title: 'Ошибка',
+      description: `Не удалось скачать отчёт`,
+    })
+  }
+}
+
+onMounted(async () => {
+  const mapInstance = new mapboxgl.Map({
+    container: mapRef.value,
+    style: "mapbox://styles/mapbox/light-v11",
+    center: [coordinates.value.lng, coordinates.value.lat],
+    zoom: 14.5,
+  });
+
+  map.value = mapInstance;
+
+
+  map.value.on('load', () => {
+    addMapData();
+  });
+
+  const params = { version: version.value};
+  
+  try {
+    await routesStore.fetchList('', params, true);
+  } catch (e) {
+    await initVersion();
+  }
+})
 watch([bus_stops, houses, routes], ([newBusStops, newHouses, newRoutes]) => {
   if (map.value && newBusStops.length && newHouses.length && Object.keys(newRoutes).length) {
     addMapData();
