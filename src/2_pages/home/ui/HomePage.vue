@@ -1,6 +1,10 @@
 <template>
     <div class="root">
-        <div v-loading="routesStore.loading.list" ref="mapRef" class="map"></div>
+        <div v-loading="routesStore.loading.list" ref="mapRef" class="map">
+          <Button class="absolute top-4 right-4" @click="updateMapData()">
+            <IconRefresh :class="[routesStore.loading.list ? 'animate-spin' : '', 'icon']"/>
+          </Button>
+        </div>
         <div class="section">
           <div class="sectionHeader">
             <div class="flex justify-between items-center">
@@ -26,6 +30,7 @@
 import { onMounted, ref, computed, watch } from "vue";
 import { Button } from "@/6_shared/ui/button";
 import IconFileDownload from '~icons/tabler/file-download?width=48px&height=48px';
+import IconRefresh from '~icons/flowbite/refresh-outline?width=48px&height=48px';
 import mapboxgl from 'mapbox-gl';
 import { RatingChart } from "@/4_features/charts/rating";
 import { CountBlock } from "@/5_entities/analytic/count";
@@ -43,6 +48,16 @@ const mapRef = ref();
 const version = computed(() => versionControlStore.currentVersion);
 
 mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_PUBLIC_ACCESS_TOKEN;
+
+const updateMapData = async () => {
+  const params = { version: version.value };
+  
+  try {
+    await routesStore.fetchList('', params, true);
+  } catch (e) {
+    await initVersion();
+  }
+}
 
 const initVersion = async () => {
   await versionStore.fetchList('folders');
@@ -130,6 +145,20 @@ const addMapData = () => {
   removeMapData();
   if (!bus_stops.value?.length || !houses.value?.length || !Object.keys(routes.value)?.length) return;
 
+  map.value.addSource('routes', {
+    type: 'geojson',
+    data: convertRoutesToGeoJSON(routes.value)
+  });
+  map.value.addLayer({
+    id: 'routes_layer',
+    type: 'line',
+    source: 'routes',
+    paint: {
+      'line-width': 2,
+      'line-color': '#E4000D'
+    }
+  });
+
   const busStopIcon = new Image()
   busStopIcon.src = '/images/map/bus.svg'
   busStopIcon.onload = () => {
@@ -179,20 +208,6 @@ const addMapData = () => {
         'icon-ignore-placement': true,
       }
   });
-
-  map.value.addSource('routes', {
-    type: 'geojson',
-    data: convertRoutesToGeoJSON(routes.value)
-  });
-  map.value.addLayer({
-    id: 'routes_layer',
-    type: 'line',
-    source: 'routes',
-    paint: {
-      'line-width': 2,
-      'line-color': '#E4000D'
-    }
-  });
 };
 
 watch([bus_stops, houses, routes], ([newBusStops, newHouses, newRoutes]) => {
@@ -226,6 +241,7 @@ watch([bus_stops, houses, routes], ([newBusStops, newHouses, newRoutes]) => {
   max-height: calc(100vh - 150px);
   width: 75%;
   overflow: hidden;
+  position: relative;
 }
 .sectionHeader {
   @include h2();
