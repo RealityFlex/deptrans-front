@@ -1,7 +1,6 @@
 <template>
      <div class="group">
       <Label for="version">Наименование версии</Label>
-      {{ files }}
       <Input v-model:modelValue="versionControlStore.currentVersion" id="version" placeholder="Введите наименование версии"></Input>
     </div>
     <div class="flex flex-col gap-6 h-full">
