@@ -131,7 +131,7 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
   };
   const uploadFile = async () => {
     try {
-      await versionSchema.validate(version.value);
+      await versionSchema.validate(versionControlStore.currentVersion);
       
       const allFiles = Object.values(fileSegments.value).flat();  
       uploadStore.uploadFiles(allFiles, currentTab.value, version.value, () => versionStore.fetchList('folders'));
