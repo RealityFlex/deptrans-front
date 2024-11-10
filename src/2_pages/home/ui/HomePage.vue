@@ -1,6 +1,6 @@
 <template>
     <div class="root">
-        <div ref="mapRef" class="map"></div>
+        <div v-loading="routesStore.loading.list" ref="mapRef" class="map"></div>
         <div class="section">
           <div class="sectionHeader">
             <div class="flex justify-between items-center">
@@ -97,12 +97,11 @@ function convertPointsToGeoJSON(points) {
     };
 }
 
-// Преобразование маршрутов в формат GeoJSON
 function convertRoutesToGeoJSON(routes) {
     return {
         type: 'FeatureCollection',
         features: Object.values(routes)
-            .filter(route => route !== null) // Только маршруты, где есть данные
+            .filter(route => route !== null)
             .map(route => ({
                 type: 'Feature',
                 geometry: {
@@ -129,7 +128,6 @@ const addMapData = () => {
   removeMapData();
   if (!bus_stops.value?.length || !houses.value?.length || !Object.keys(routes.value)?.length) return;
 
-  // Добавление точек автобусных остановок
   map.value.addSource('bus_stops', {
     type: 'geojson',
     data: convertPointsToGeoJSON(bus_stops.value)
