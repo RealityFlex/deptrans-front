@@ -6,7 +6,7 @@
           </Button>
           <div class="absolute flex gap-4 top-4 left-4 bg-white px-4 py-2 rounded-lg">
             <div class="text-xs flex gap-2 items-center">
-              <IconlineCompass class="icon text-primary"/> {{ coordinates.lng }}, {{ coordinates.lat }}
+              <IconlineCompass class="icon text-primary"/> {{ coordinates.lat }}, {{ coordinates.lng }},
             </div>
           </div>
           <div class="absolute flex flex-col gap-2 bottom-4 left-4 bg-white p-6 rounded-xl w-[300px]">
@@ -86,8 +86,8 @@ const { toast } = useToast();
 const map = ref();
 const mapRef = ref();
 const coordinates = ref({
-  lat: 37.495,
-  lng: 55.555
+  lat: 55.555,
+  lng: 37.495
 });
 
 const version = computed(() => versionControlStore.currentVersion);
@@ -294,8 +294,8 @@ const updateMapData = async () => {
 const getRaport = async () => {
   const params = { 
     version: version.value, 
-    lat: coordinates.value.lng,
-    long: coordinates.value.lat, 
+    lat: coordinates.value.lat,
+    long: coordinates.value.lng, 
   };
   
   try {
@@ -314,7 +314,7 @@ onMounted(async () => {
   const mapInstance = new mapboxgl.Map({
     container: mapRef.value,
     style: "mapbox://styles/mapbox/light-v11",
-    center: [coordinates.value.lat, coordinates.value.lng],
+    center: [coordinates.value.lng, coordinates.value.lat],
     zoom: 14.5,
   });
 
