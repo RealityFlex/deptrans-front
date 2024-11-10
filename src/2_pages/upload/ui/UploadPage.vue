@@ -4,7 +4,7 @@
         <div class="sectionHeader">
           Загрузка файлов для версии
         </div>
-          <Upload/>
+          <Upload :selectedVersion="versionControlStore.currentVersion"/>
       </div>
       <div class="section">
         <div class="sectionHeader">
@@ -30,10 +30,14 @@ const versionStore = useVersionStore();
 const filesStore = useFilesStore();
 const versionControlStore = useVersionControlStore();
 
-
 const fetch = async () => {
   await versionStore.fetchList('folders');
   versionControlStore.changeVersion(folders.value[0]?.version);
+  
+  const params = {
+    version: folders.value[0]?.version
+  }
+  await filesStore.fetchList('', params);
 }
 
 const folders = computed<{ version: string; created_at: string }[]>(() => versionStore.items);

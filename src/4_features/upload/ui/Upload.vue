@@ -1,6 +1,7 @@
 <template>
      <div class="group">
       <Label for="version">Наименование версии</Label>
+      {{ files }}
       <Input v-model:modelValue="versionControlStore.currentVersion" id="version" placeholder="Введите наименование версии"></Input>
     </div>
     <div class="flex flex-col gap-6 h-full">
@@ -49,7 +50,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   
   import { useToast } from '@/6_shared/ui/toast';
   import { Button } from '@/6_shared/ui/button';
@@ -63,12 +64,21 @@
   import * as yup from 'yup';
 import { useVersionControlStore, useVersionStore } from '@/5_entities/version/model';
 
+  const props = defineProps({
+      selectedVersion: {
+        type: String,
+        required: true
+      },
+    })
+
   const versionControlStore = useVersionControlStore();
+  const uploadStore = useUploadStore();
+  const versionStore = useVersionStore();
 
   const { toast } = useToast();
-  
+
   const currentTab = ref('streets');
-  
+  const version = ref(props.selectedVersion)
   const fileSegments = ref({
     streets: [],
     buildings: [],
@@ -76,18 +86,7 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
     stations: [],
   });
 
-  const uploadStore = useUploadStore();
-
   const versionSchema = yup.string().required();
-
-  const props = defineProps({
-    selectedVersion: {
-      type: String,
-      required: true
-    }
-  })
-
-  const version = ref(props.selectedVersion)
   
   const onFileChange = (e: any) => {
     const maxFilesPerSegment = 6;
@@ -95,44 +94,42 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
     const segment = currentTab.value;
 
     files.forEach((file) => {
-        const existingFileIndex = fileSegments.value[segment].findIndex(
-            (existingFile) => existingFile.name === file.name
-        );
+      const existingFileIndex = fileSegments.value[segment].findIndex(
+        (existingFile) => existingFile.name === file.name
+      );
 
-        if (existingFileIndex !== -1) {
-            fileSegments.value[segment][existingFileIndex] = file;
-            toast({
-                variant: 'info',
-                title: `Файл перезаписан`,
-                description: `Файл "${file.name}" для сегмента "${segment}" был перезаписан.`,
-            });
-        } else {
-            if (fileSegments.value[segment].length < maxFilesPerSegment) {
-                fileSegments.value[segment].push(file);
-            }
+      if (existingFileIndex !== -1) {
+        fileSegments.value[segment][existingFileIndex] = { name: file.name, isFetched: false, size: file.size };
+        toast({
+          variant: 'info',
+          title: `Файл перезаписан`,
+          description: `Файл "${file.name}" для сегмента "${segment}" был перезаписан.`,
+        });
+      } else {
+        if (fileSegments.value[segment].length < maxFilesPerSegment) {
+          fileSegments.value[segment].push({ name: file.name, isFetched: false, size: file.size });
         }
+      }
     });
 
     if (fileSegments.value[segment].length > maxFilesPerSegment) {
         fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
+        fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
 
-        toast({
-            variant: 'destructive',
-            title: `Превышено максимальное количество файлов`,
-            description: `Для сегмента "${segment}" можно загрузить не более ${maxFilesPerSegment} файлов.`,
-        });
+      fileSegments.value[segment] = fileSegments.value[segment].slice(0, maxFilesPerSegment);
+
+      toast({
+        variant: 'destructive',
+        title: `Превышено максимальное количество файлов`,
+        description: `Для сегмента "${segment}" можно загрузить не более ${maxFilesPerSegment} файлов.`,
+      });
     }
 
     e.target.value = '';
 };
-
-  const versionStore = useVersionStore();
-
-  
   const removeFile = (segment, index) => {
     fileSegments.value[segment].splice(index, 1);
   };
-  
   const uploadFile = async () => {
     try {
       await versionSchema.validate(version.value);
@@ -150,8 +147,6 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
       }
     }
   };
- 
-
   const calculateFileSize = (bytes: number) => {
     const sizes = ['Байт', 'КБ', 'МБ', 'ГБ', 'ТБ'];
     if (bytes === 0) {
@@ -160,7 +155,6 @@ import { useVersionControlStore, useVersionStore } from '@/5_entities/version/mo
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
   };
-
   </script>
   
   <style scoped lang="scss">

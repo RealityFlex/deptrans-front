@@ -23,7 +23,7 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
       loading.value[key] = value;
     };
 
-    const fetchList = async (getter?: string, params?: any) => {
+    const fetchList = async (getter?: string, params?: any, noErrorToast?: boolean) => {
       setLoading('list', true);
       try {
         const { data, status } = await httpService.list(params);
@@ -33,11 +33,14 @@ export function createCrudStore<T extends BaseDto>(storeId: string, httpService:
         items.value = getter && data[getter] || data;
       } catch (e) {
         console.error('Error on fetching list:', e);
-        toast({
-          variant: 'destructive',
-          title: 'Ошибка',
-          description: `Не удалось загрузить данные`,
-        })
+        if (!noErrorToast) {
+          toast({
+            variant: 'destructive',
+            title: 'Ошибка',
+            description: `Не удалось загрузить данные`,
+          })
+        }
+        throw e;
       } finally {
         setLoading('list', false);
       }
