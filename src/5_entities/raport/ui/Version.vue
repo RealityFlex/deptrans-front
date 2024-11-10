@@ -12,10 +12,12 @@
             </div>
         </div>
         <div class="right">
-            <Button v-if="isSelected" variant="outline">
-                Перейти к карте
-                <IconMapUp class="icon text-primary ml-2"/>
-            </Button>
+            <router-link  v-if="isSelected" :to="{ name: AppPages.home }">
+                <Button variant="outline">
+                    Перейти к карте
+                    <IconMapUp class="icon text-primary ml-2"/>
+                </Button>
+            </router-link>
             <Button @click="select" v-else>Выбрать</Button>
             <Button size="icon" variant="ghost">
                 <IconTrash class="icon text-primary"/>
@@ -29,6 +31,7 @@ import { Button } from '@/6_shared/ui/button'
 import IconTrash from '~icons/iconamoon/trash?width=48px&height=48px';
 import IconMapUp from '~icons/tabler/map-up?width=48px&height=48px';
 import { format, parse } from '@formkit/tempo'
+import { AppPages } from '@/1_app/router';
 
 
 const props = defineProps({

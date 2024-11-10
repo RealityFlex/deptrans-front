@@ -9,6 +9,26 @@
               <IconlineCompass class="icon text-primary"/> {{ coordinates.lng }}, {{ coordinates.lat }}
             </div>
           </div>
+          <div class="absolute flex flex-col gap-2 bottom-4 left-4 bg-white p-6 rounded-xl w-[300px]">
+            Версия
+            <Select v-model="version" @update:model-value="recalculate()">
+            <SelectTrigger>
+              <SelectValue :placeholder="version ? version : 'Выберите версию'" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                  <SelectLabel>Доступные версии</SelectLabel>
+                  <SelectItem
+                    v-for="version in versionStore.items"
+                    :key="version.version"
+                    :value="version.version"
+                  >
+                    {{ version.version }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div class="section">
           <div class="sectionHeader">
@@ -45,6 +65,15 @@ import { router } from "@/1_app/router";
 import IconlineCompass from '~icons/icon-park-outline/compass?width=48px&height=48px';
 import { useRaportStore } from "@/5_entities/raport/model";
 import { useToast } from "@/6_shared/ui/toast";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/6_shared/ui/select'
 
 mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_PUBLIC_ACCESS_TOKEN;
 
@@ -57,8 +86,8 @@ const { toast } = useToast();
 const map = ref();
 const mapRef = ref();
 const coordinates = ref({
-  lng: 37.495,
-  lat: 55.555
+  lat: 37.495,
+  lng: 55.555
 });
 
 const version = computed(() => versionControlStore.currentVersion);
@@ -143,7 +172,6 @@ const removeMapData = () => {
 };
 const addMapData = () => {
   removeMapData();
-  if (!bus_stops.value?.length || !houses.value?.length ||  !Object.keys(routes.value)?.length || !heatMapData.value?.length) return;
 
   map.value.addSource('routes', {
     type: 'geojson',
@@ -286,7 +314,7 @@ onMounted(async () => {
   const mapInstance = new mapboxgl.Map({
     container: mapRef.value,
     style: "mapbox://styles/mapbox/light-v11",
-    center: [coordinates.value.lng, coordinates.value.lat],
+    center: [coordinates.value.lat, coordinates.value.lng],
     zoom: 14.5,
   });
 
@@ -305,8 +333,12 @@ onMounted(async () => {
     await initVersion();
   }
 })
+const recalculate = () => {
+  versionControlStore.changeVersion(version.value);
+  updateMapData();
+}
 watch([bus_stops, houses, routes, heatMapData], ([newBusStops, newHouses, newRoutes, newHeatMapData]) => {
-  if (map.value && newBusStops.length && newHouses.length && Object.keys(newRoutes).length && newHeatMapData.length) {
+  if (map.value) {
     addMapData();
   }
 });
