@@ -65,6 +65,7 @@ const version = computed(() => versionControlStore.currentVersion);
 const bus_stops = computed(() => routesStore.items.bus_stops);
 const houses = computed(() => routesStore.items.houses);
 const routes = computed(() => routesStore.items.routes);
+const heatMapData = computed(() => routesStore.items.heat_map); 
 const summary = computed(() => routesStore.items.summary);
 
 const initVersion = async () => {
@@ -105,6 +106,28 @@ function convertRoutesToGeoJSON(routes) {
             }))
     };
 }
+function convertHeatMapToGeoJSON(data) {
+  const features = data.flatMap((entry) => {
+    const [startCoords, endCoords, intensity, color] = entry;
+    const feature = {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: startCoords,
+      },
+      properties: {
+        intensity,
+        color,
+      },
+    };
+    return feature;
+  });
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
 const removeMapData = () => {
   if (map.value.getLayer('bus_stops_layer')) map.value.removeLayer('bus_stops_layer');
   if (map.value.getSource('bus_stops')) map.value.removeSource('bus_stops');
@@ -114,15 +137,18 @@ const removeMapData = () => {
   
   if (map.value.getLayer('routes_layer')) map.value.removeLayer('routes_layer');
   if (map.value.getSource('routes')) map.value.removeSource('routes');
+
+  if (map.value.getLayer('heat_map_layer')) map.value.removeLayer('heat_map_layer');
+  if (map.value.getSource('heat_map')) map.value.removeSource('heat_map');
 };
 const addMapData = () => {
   removeMapData();
-  if (!bus_stops.value?.length || !houses.value?.length || !Object.keys(routes.value)?.length) return;
+  if (!bus_stops.value?.length || !houses.value?.length ||  !Object.keys(routes.value)?.length || !heatMapData.value?.length) return;
 
   map.value.addSource('routes', {
     type: 'geojson',
     data: convertRoutesToGeoJSON(routes.value)
-  });
+  })
   map.value.addLayer({
     id: 'routes_layer',
     type: 'line',
@@ -131,6 +157,32 @@ const addMapData = () => {
       'line-width': 2,
       'line-color': '#E4000D'
     }
+  })
+
+  map.value.addSource('heat_map', {
+    type: 'geojson',
+    data: convertHeatMapToGeoJSON(heatMapData.value[1]),
+  });
+  map.value.addLayer({
+    id: 'heat_map_layer',
+    type: 'heatmap',
+    source: 'heat_map',
+    paint: {
+      'heatmap-intensity': 1,
+      'heatmap-radius': 25,
+      'heatmap-opacity': 0.2,
+      'heatmap-color': [
+        'interpolate',
+        ['linear'],
+        ['heatmap-density'],
+        0, 'rgba(33,102,172,0)',
+        0.2, 'rgb(103,169,207)',
+        0.4, 'rgb(209,229,240)',
+        0.6, 'rgb(253,219,199)',
+        0.8, 'rgb(239,138,98)',
+        1, 'rgb(255, 75, 0)'
+      ],
+    },
   });
 
   const busStopIcon = new Image()
@@ -140,13 +192,10 @@ const addMapData = () => {
        map.value.addImage('bus_station', busStopIcon);
     }
   }
-
-
   map.value.addSource('bus_stops', {
     type: 'geojson',
     data: convertPointsToGeoJSON(bus_stops.value)
   });
-
   map.value.addLayer({
     id: 'bus_stops_layer',
     type: 'symbol',
@@ -166,7 +215,6 @@ const addMapData = () => {
       map.value.addImage('house', housesIcon);
     }
   }
-
   map.value.addSource('houses', {
     type: 'geojson',
     data: convertPointsToGeoJSON(houses.value)
@@ -183,7 +231,6 @@ const addMapData = () => {
       }
   });
 
-
   map.value.on('click', (event: any) => {
     const lngLat = event.lngLat;
     coordinates.value = {
@@ -193,10 +240,14 @@ const addMapData = () => {
 
     updateMapData();
 
-    map.value.zoomTo(14.5, {
+    map.value.zoomTo(16, {
       center: lngLat,
       duration: 500,
     });
+    toast({
+      title: 'Корректировка координат',
+      description: `Обрабатываем новые координаты для пересчета: ${coordinates.value.lat}, ${coordinates.value.lng}`,
+    })
   });
 };
 const updateMapData = async () => {
@@ -254,8 +305,8 @@ onMounted(async () => {
     await initVersion();
   }
 })
-watch([bus_stops, houses, routes], ([newBusStops, newHouses, newRoutes]) => {
-  if (map.value && newBusStops.length && newHouses.length && Object.keys(newRoutes).length) {
+watch([bus_stops, houses, routes, heatMapData], ([newBusStops, newHouses, newRoutes, newHeatMapData]) => {
+  if (map.value && newBusStops.length && newHouses.length && Object.keys(newRoutes).length && newHeatMapData.length) {
     addMapData();
   }
 });
