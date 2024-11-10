@@ -124,7 +124,7 @@ function convertPointsToGeoJSON(points) {
 function convertRoutesToGeoJSON(routes) {
     return {
         type: 'FeatureCollection',
-        features: Object.values(routes)
+        features: Object.values(routes || {})
             .filter(route => route !== null)
             .map(route => ({
                 type: 'Feature',
@@ -136,7 +136,7 @@ function convertRoutesToGeoJSON(routes) {
     };
 }
 function convertHeatMapToGeoJSON(data) {
-  const features = data.flatMap((entry) => {
+  const features = data?.flatMap((entry) => {
     const [startCoords, endCoords, intensity, color] = entry;
     const feature = {
       type: 'Feature',
